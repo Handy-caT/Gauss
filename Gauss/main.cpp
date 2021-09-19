@@ -7,6 +7,41 @@
 //
 
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+void RandomSet() {
+    srand(static_cast<unsigned int>(time(0)));
+}
+
+int Random(int min, int max) {
+    return rand() % (max- min + 1) + min;
+}
+
+double** RandomMatrix(int rows, int cols) {
+    
+    int i = 0;
+    int j = 0;
+    
+    double** result = new double*[rows]; //RESULT i/j
+    
+    while( i < rows) {
+        
+        result[i] = new double[cols];
+        j = 0;
+        
+        while( j < cols) {
+            
+            result[i][j] = Random(-100, 100);
+            
+            j++;
+        }
+        
+        i++;
+    }
+    
+    return result;
+}
 
 void MatrixShow(double** matrix, int rows, int cols) {
     
@@ -65,6 +100,7 @@ double** MatrixMultiply(double** left, double** right, int row1, int p, int col2
 
 int main(int argc, const char * argv[]) {
     
+    /*
     double** a;
     
     a = new double*[2];
@@ -76,7 +112,14 @@ int main(int argc, const char * argv[]) {
     a[1][0] = 2;
     a[1][1] = 3;
     
-    MatrixShow(a, 2, 2);
+    MatrixShow(a, 2, 2);*/
+    
+    double** a;
+    
+    RandomSet();
+    a = RandomMatrix(3, 3);
+    MatrixShow(a, 3, 3);
+    
     
     // insert code here...
     //std::cout << "Hello, World!\n";
