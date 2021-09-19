@@ -8,6 +8,25 @@
 
 #include <iostream>
 
+void MatrixShow(double** matrix, int rows, int cols) {
+    
+    int i = 0;
+    int j = 0;
+    
+    while( i < rows ) {
+        
+        j = 0;
+        while( j < cols) {
+            std::cout << matrix[i][j] << " ";
+            j++;
+        }
+        
+        std::cout << "\n";
+        i++;
+    }
+    
+}
+
 double** MatrixMultiply(double** left, double** right, int row1, int p, int col2) {
     
     //LEFT row1/p
@@ -45,7 +64,21 @@ double** MatrixMultiply(double** left, double** right, int row1, int p, int col2
 }
 
 int main(int argc, const char * argv[]) {
+    
+    double** a;
+    
+    a = new double*[2];
+    a[0] = new double[2];
+    a[1] = new double[2];
+    
+    a[0][0] = 0;
+    a[0][1] = 1;
+    a[1][0] = 2;
+    a[1][1] = 3;
+    
+    MatrixShow(a, 2, 2);
+    
     // insert code here...
-    std::cout << "Hello, World!\n";
+    //std::cout << "Hello, World!\n";
     return 0;
 }
