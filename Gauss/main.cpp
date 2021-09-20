@@ -84,7 +84,7 @@ double** MatrixMultiply(double** left, double** right, int row1, int p, int col2
             
             while (k < p) {
                 
-                result[i][j] += left[row1][k] * right[k][col2];
+                result[i][j] += left[i][k] * right[k][j];
                 k++;
             }
             
@@ -115,10 +115,20 @@ int main(int argc, const char * argv[]) {
     MatrixShow(a, 2, 2);*/
     
     double** a;
+    double** b;
+    double** c;
     
     RandomSet();
     a = RandomMatrix(3, 3);
+    b = RandomMatrix(3, 3);
+    
     MatrixShow(a, 3, 3);
+    MatrixShow(b, 3, 3);
+    
+    c = MatrixMultiply(a, b, 3, 3, 3);
+    
+    MatrixShow(c, 3, 3);
+    
     
     
     // insert code here...
