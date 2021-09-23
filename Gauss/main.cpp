@@ -102,7 +102,7 @@ void MatrixShow(double** matrix, int rows, int cols) {
         
         j = 0;
         while( j < cols) {
-            std::cout << matrix[i][j] << " ";
+            std::cout << matrix[j][i] << " ";
             j++;
         }
         
@@ -152,8 +152,39 @@ double** RowDivide(double** A, int row, int cols, int firstCol, double number) {
     
     int i = firstCol;
     while( i < cols ) {
-        A[row][i] = A[row][i]/number;
+        A[i][row] = A[i][row]/number;
         //std::cout << A[row][i] << " " << A[row][i]/number << "\n";
+        i++;
+    }
+    
+    return A;
+}
+
+double** RowsResidual(double** A, int firstRow, int rows, int cols, double** f, int fCols) {
+    
+    int i = firstRow + 1;
+    int j = 0;
+    int k = 0;
+    int number;
+    
+    while( i < rows) {
+        
+        j = firstRow + 1;
+        k = 0;
+        number = A[firstRow][i];
+        
+        while( j < cols ) {
+            
+            A[j][i] = A[j][i] - A[j][firstRow]*number;
+            if( k < fCols ) {
+                f[k][i] = f[k][i] - f[k][firstRow]*number;
+                k++;
+            }
+            
+            j++;
+        }
+        //MatrixShow(A, 3, 3);
+        //MatrixShow(f, 3, 1);
         i++;
     }
     
@@ -162,48 +193,70 @@ double** RowDivide(double** A, int row, int cols, int firstCol, double number) {
 
 double** ZeroCol(double** A, int col, int rows) {
     
-    int i = 0;
+    int i = col;
     while( i < rows ) {
-        A[i][col] = (double) 0;
+        A[col][i] = (double) 0;
         i++;
     }
     
     return A;
 }
 
+double** ReverseSteps(double** userA, int rows, int cols, double** userf, int fCols) {
+    
+    int i = rows - 2;
+    int j = 0;
+    int k = 0;
+    
+    double** X = CopyMatrix(userf, rows, fCols);
+    
+    while( i >= 0) {
+        j = cols - 1;
+        k = rows - 1;
+        while( j != i ){
+            
+            X[0][i] = X[0][i] - userA[j][i]*X[0][k];
+            
+            k--;
+            j--;
+        }
+        
+        i--;
+    }
+    
+    return X;
+}
+
 double** StraightGauss(double** userA, int rows, int cols, double** userf, int fCols) {
     
     int i = 0;
-    int j = 0;
     
     double leading;
     
-    double** X = MatrixMake(rows, fCols);
+    double** X;
     double** A = CopyMatrix(userA, rows, cols);
-    double** f = CopyMatrix(userf, rows, fCols);
-    
-    MatrixShow(A, 3, 3);
+    double** f = userf;
     
     while( i < rows - 1 ) {
         
         leading = A[i][i];
         
-        ZeroCol(A, i, rows);
-        MatrixShow(A, 3, 3);
         RowDivide(A, i, cols, i+1, leading);
-        MatrixShow(A, 3, 3);
-        RowDivide(f, i, fCols, i, leading);
-        
+        RowDivide(f, i, fCols, 0, leading);
+        RowsResidual(A, i, rows, cols, f, fCols);
+        ZeroCol(A, i, rows);
         A[i][i] = 1;
         
         i++;
     }
     
     leading = A[i][i];
-    RowDivide(f, i, fCols, i, leading);
+    RowDivide(f, i, fCols, 0, leading);
     A[i][i] = 1;
     
-    return A;
+    X = ReverseSteps(A, rows, cols, f, fCols);
+    
+    return X;
 }
 
 int main(int argc, const char * argv[]) {
@@ -245,9 +298,14 @@ int main(int argc, const char * argv[]) {
     a = RandomMatrix(3, 3);
     b = RandomMatrix(3, 1);
     
-    c = StraightGauss(a, 3, 3, b, 1);
+    MatrixShow(a, 3, 3);
+    MatrixShow(b, 3, 1);
     
-    MatrixShow(c, 3, 3);
+    c = StraightGauss(a, 3, 3, b, 1);
+    //c = RowsResidual(a, 0, 3, 3, b, 1);
+    
+    MatrixShow(c, 3, 1);
+    //MatrixShow(b, 3, 1);
     
     // insert code here...
     //std::cout << "Hello, World!\n";
