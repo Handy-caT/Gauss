@@ -47,7 +47,7 @@ double** CopyMatrix(double** Matrix, int rows, int cols) {
     
 }
 
-double** MatrixMake(int rows, int cols) {
+double** MatrixMake(int rows, int cols, bool unitary) {
     
     int i = 0;
     int j = 0;
@@ -61,7 +61,9 @@ double** MatrixMake(int rows, int cols) {
         
         while(j < cols) {
             
-            result[i][j] = 0;
+            if(unitary && i == j) result[i][j] = 1;
+            else result[i][j] = 0;
+
             j++;
             
         }
@@ -300,61 +302,61 @@ int MaxInCol(double** A, int col, int rows,int first){
 }
 
     
-    double** ImprovedGauss(double** userA, int rows, int cols, double** userf, int fCols) {
+double** ImprovedGauss(double** userA, int rows, int cols, double** userf, int fCols) {
         
-        int i = 0;
-        int from = 0;
+    int i = 0;
+    int from = 0;
         
-        double leading;
+    double leading;
         
-        double** X;
-        double** A = CopyMatrix(userA, rows, cols);
-        double** f = CopyMatrix(userf, rows, fCols);
+    double** X;
+    double** A = CopyMatrix(userA, rows, cols);
+    double** f = CopyMatrix(userf, rows, fCols);
         
-        while( i < rows - 1 ) {
+    while( i < rows - 1 ) {
             
-            from = MaxInCol(A, i, rows, i);
-            if( from != i ) {
-                RowsChange(A, cols, from, i, f, fCols);
-            }
-            leading = A[i][i];
-            
-            //MatrixShow(A, 3, 3);
-            //MatrixShow(f, 3, 1);
-            
-            RowDivide(A, i, cols, i+1, leading);
-            //MatrixShow(A, 3, 3);
-            RowDivide(f, i, fCols, 0, leading);
-            //MatrixShow(f, 3, 1);
-            
-            RowsResidual(A, i, rows, cols, f, fCols);
-            
-            //MatrixShow(A, 3, 3);
-            //MatrixShow(f, 3, 1);
-            
-            ZeroCol(A, i, rows);
-            A[i][i] = 1;
-            
-            //MatrixShow(A, 3, 3);
-            //MatrixShow(f, 3, 1);
-            std::cout << std::endl;
-            
-            i++;
+        from = MaxInCol(A, i, rows, i);
+        if( from != i ) {
+            RowsChange(A, cols, from, i, f, fCols);
         }
-        
         leading = A[i][i];
-        RowDivide(f, i, fCols, 0, leading);
-        A[i][i] = 1;
-        
+            
         //MatrixShow(A, 3, 3);
         //MatrixShow(f, 3, 1);
-        
-        
-        X = ReverseSteps(A, rows, cols, f, fCols);
-        
-        return X;
-        
+            
+        RowDivide(A, i, cols, i+1, leading);
+        //MatrixShow(A, 3, 3);
+        RowDivide(f, i, fCols, 0, leading);
+        //MatrixShow(f, 3, 1);
+            
+        RowsResidual(A, i, rows, cols, f, fCols);
+            
+        //MatrixShow(A, 3, 3);
+        //MatrixShow(f, 3, 1);
+            
+        ZeroCol(A, i, rows);
+        A[i][i] = 1;
+            
+        //MatrixShow(A, 3, 3);
+        //MatrixShow(f, 3, 1);
+        std::cout << std::endl;
+            
+        i++;
     }
+        
+    leading = A[i][i];
+    RowDivide(f, i, fCols, 0, leading);
+    A[i][i] = 1;
+        
+    //MatrixShow(A, 3, 3);
+    //MatrixShow(f, 3, 1);
+        
+        
+    X = ReverseSteps(A, rows, cols, f, fCols);
+        
+    return X;
+        
+}
     
     
 double** StraightGauss(double** userA, int rows, int cols, double** userf, int fCols) {
@@ -396,6 +398,16 @@ double** StraightGauss(double** userA, int rows, int cols, double** userf, int f
     return X;
 }
 
+double** ReverseMatrix(double** matrix, int rows, int cols) {
+    
+    double** reverse;
+    double** E = MatrixMake(rows, cols, true);
+    reverse = ImprovedGauss(matrix, rows, cols, E, cols);
+    
+    return  reverse;
+}
+
+
 int main(int argc, const char * argv[]) {
     
     double** a;
@@ -406,18 +418,21 @@ int main(int argc, const char * argv[]) {
     //a = RandomMatrix(3, 3);
     //b = RandomMatrix(3, 1);
     
-    a = MatrixMake(3, 3);
-    b = MatrixMake(3, 3);
+    a = MatrixMake(3, 3, false);
+    //b = MatrixMake(3, 3, false);
     
     InputMatrix(a, 3, 3);
-    InputMatrix(b, 3, 3);
+    //InputMatrix(b, 3, 3);
     
     MatrixShow(a, 3, 3);
-    MatrixShow(b, 3, 3);
+    //MatrixShow(b, 3, 3);
     
     //c = StraightGauss(a, 3, 3, b, 1);
     //c = RowsResidual(a, 0, 3, 3, b, 1);
-    c = ImprovedGauss(a, 3, 3, b, 3);
+    //c = ImprovedGauss(a, 3, 3, b, 3);
+    //MatrixShow(c, 3, 3);
+    
+    c = ReverseMatrix(a, 3, 3);
     MatrixShow(c, 3, 3);
     
     //c = StraightGauss(a, 3, 3, b, 3);
