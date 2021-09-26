@@ -96,6 +96,24 @@ double** RandomMatrix(int rows, int cols) {
     return result;
 }
 
+void InputMatrix(double** matrix, int rows, int cols) {
+    
+    int i = 0;
+    int j = 0;
+    
+    while( i < rows ) {
+        
+        j = 0;
+        while( j < cols) {
+            std::cin >> matrix[i][j];
+            j++;
+        }
+        
+        i++;
+    }
+    
+}
+
 void MatrixShow(double** matrix, int rows, int cols) {
     
     int i = 0;
@@ -168,13 +186,14 @@ double** RowsResidual(double** A, int firstRow, int rows, int cols, double** f, 
     int i = firstRow + 1;
     int j = 0;
     int k = 0;
-    int number;
+    double number;
+    int firstCol = firstRow;
     
     while( i < rows) {
         
         j = firstRow + 1;
         k = 0;
-        number = A[i][firstRow];
+        number = A[i][firstCol];
         
         while( j < cols || k < fCols) {
             
@@ -214,14 +233,25 @@ double** ReverseSteps(double** userA, int rows, int cols, double** userf, int fC
     int j = 0;
     int k = 0;
     
+    int a = 0;
+    
     double** X = CopyMatrix(userf, rows, fCols);
     
     while( i >= 0) {
+        
         j = cols - 1;
         k = rows - 1;
+        
+        
         while( j != i ){
             
-            X[i][0] = X[i][0] - userA[i][j]*X[k][0];
+            a = 0;
+            
+            while( a < fCols )
+            {
+                X[i][a] = X[i][a] - userA[i][j]*X[k][a];
+                a++;
+            }
             
             k--;
             j--;
@@ -250,11 +280,11 @@ double** RowsChange(double** A, int cols, int from, int to, double** f, int fCol
     
 }
 
-int MaxInCol(double** A, int col, int rows){
+int MaxInCol(double** A, int col, int rows,int first){
     
-    int max = abs(A[0][col]);
-    int imax = 0;
-    int i = 0;
+    int max = abs(A[first][col]);
+    int imax = first;
+    int i = first;
     
     while( i < rows) {
         
@@ -283,9 +313,9 @@ int MaxInCol(double** A, int col, int rows){
         
         while( i < rows - 1 ) {
             
-            from = MaxInCol(A, i, rows);
+            from = MaxInCol(A, i, rows, i);
             if( from != i ) {
-                A = RowsChange(A, cols, from, i, f, fCols);
+                RowsChange(A, cols, from, i, f, fCols);
             }
             leading = A[i][i];
             
@@ -296,11 +326,18 @@ int MaxInCol(double** A, int col, int rows){
             //MatrixShow(A, 3, 3);
             RowDivide(f, i, fCols, 0, leading);
             //MatrixShow(f, 3, 1);
+            
             RowsResidual(A, i, rows, cols, f, fCols);
+            
             //MatrixShow(A, 3, 3);
             //MatrixShow(f, 3, 1);
+            
             ZeroCol(A, i, rows);
             A[i][i] = 1;
+            
+            //MatrixShow(A, 3, 3);
+            //MatrixShow(f, 3, 1);
+            std::cout << std::endl;
             
             i++;
         }
@@ -311,6 +348,7 @@ int MaxInCol(double** A, int col, int rows){
         
         //MatrixShow(A, 3, 3);
         //MatrixShow(f, 3, 1);
+        
         
         X = ReverseSteps(A, rows, cols, f, fCols);
         
@@ -365,22 +403,29 @@ int main(int argc, const char * argv[]) {
     double** c;
     
     RandomSet();
-    a = RandomMatrix(3, 3);
-    b = RandomMatrix(3, 1);
+    //a = RandomMatrix(3, 3);
+    //b = RandomMatrix(3, 1);
+    
+    a = MatrixMake(3, 3);
+    b = MatrixMake(3, 3);
+    
+    InputMatrix(a, 3, 3);
+    InputMatrix(b, 3, 3);
     
     MatrixShow(a, 3, 3);
-    MatrixShow(b, 3, 1);
+    MatrixShow(b, 3, 3);
     
     //c = StraightGauss(a, 3, 3, b, 1);
     //c = RowsResidual(a, 0, 3, 3, b, 1);
-    c = ImprovedGauss(a, 3, 3, b, 1);
-    MatrixShow(c, 3, 1);
+    c = ImprovedGauss(a, 3, 3, b, 3);
+    MatrixShow(c, 3, 3);
     
-    c = StraightGauss(a, 3, 3, b, 1);
-    MatrixShow(c, 3, 1);
+    //c = StraightGauss(a, 3, 3, b, 3);
+    //MatrixShow(c, 3, 1);
     //MatrixShow(b, 3, 1);
     
     // insert code here...
     //std::cout << "Hello, World!\n";
     return 0;
 }
+
