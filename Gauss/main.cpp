@@ -135,6 +135,25 @@ void MatrixShow(double** matrix, int rows, int cols) {
     
 }
 
+double** MatrixResidual(double** left, double** right, int rows, int cols) {
+    
+    double** result = MatrixMake(rows, cols, false);
+    
+    int i = 0;
+    int j = 0;
+    
+    while( i < rows) {
+        
+        j = 0;
+        while( j < cols) {
+            result[i][j] = left[i][j] - right[i][j];
+            j++;
+        }
+        i++;
+    }
+    return result;
+}
+
 double** MatrixMultiply(double** left, double** right, int row1, int p, int col2) {
     
     //LEFT row1/p
@@ -176,7 +195,6 @@ double** RowDivide(double** A, int row, int cols, int firstCol, double number) {
     int i = firstCol;
     while( i < cols ) {
         A[row][i] = A[row][i]/number;
-        //std::cout << A[row][i] << " " << A[row][i]/number << "\n";
         i++;
     }
     
@@ -208,10 +226,7 @@ double** RowsResidual(double** A, int firstRow, int rows, int cols, double** f, 
                 k++;
             }
             
-            
         }
-        //MatrixShow(A, 3, 3);
-        //MatrixShow(f, 3, 1);
         i++;
     }
     
@@ -284,7 +299,7 @@ double** RowsChange(double** A, int cols, int from, int to, double** f, int fCol
 
 int MaxInCol(double** A, int col, int rows,int first){
     
-    int max = abs(A[first][col]);
+    double max = abs(A[first][col]);
     int imax = first;
     int i = first;
     
@@ -310,8 +325,8 @@ double** ImprovedGauss(double** userA, int rows, int cols, double** userf, int f
     double leading;
         
     double** X;
-    double** A = CopyMatrix(userA, rows, cols);
-    double** f = CopyMatrix(userf, rows, fCols);
+    double** A = userA;//CopyMatrix(userA, rows, cols);
+    double** f = userf;//CopyMatrix(userf, rows, fCols);
         
     while( i < rows - 1 ) {
             
@@ -320,38 +335,20 @@ double** ImprovedGauss(double** userA, int rows, int cols, double** userf, int f
             RowsChange(A, cols, from, i, f, fCols);
         }
         leading = A[i][i];
-            
-        //MatrixShow(A, 3, 3);
-        //MatrixShow(f, 3, 1);
-            
+              
         RowDivide(A, i, cols, i+1, leading);
-        //MatrixShow(A, 3, 3);
         RowDivide(f, i, fCols, 0, leading);
-        //MatrixShow(f, 3, 1);
-            
         RowsResidual(A, i, rows, cols, f, fCols);
-            
-        //MatrixShow(A, 3, 3);
-        //MatrixShow(f, 3, 1);
-            
         ZeroCol(A, i, rows);
         A[i][i] = 1;
-            
-        //MatrixShow(A, 3, 3);
-        //MatrixShow(f, 3, 1);
-        std::cout << std::endl;
-            
+
         i++;
     }
         
     leading = A[i][i];
     RowDivide(f, i, fCols, 0, leading);
     A[i][i] = 1;
-        
-    //MatrixShow(A, 3, 3);
-    //MatrixShow(f, 3, 1);
-        
-        
+
     X = ReverseSteps(A, rows, cols, f, fCols);
         
     return X;
@@ -374,12 +371,8 @@ double** StraightGauss(double** userA, int rows, int cols, double** userf, int f
         leading = A[i][i];
         
         RowDivide(A, i, cols, i+1, leading);
-        //MatrixShow(A, 3, 3);
         RowDivide(f, i, fCols, 0, leading);
-        //MatrixShow(f, 3, 1);
         RowsResidual(A, i, rows, cols, f, fCols);
-        //MatrixShow(A, 3, 3);
-        //MatrixShow(f, 3, 1);
         ZeroCol(A, i, rows);
         A[i][i] = 1;
         
@@ -389,9 +382,6 @@ double** StraightGauss(double** userA, int rows, int cols, double** userf, int f
     leading = A[i][i];
     RowDivide(f, i, fCols, 0, leading);
     A[i][i] = 1;
-    
-    //MatrixShow(A, 3, 3);
-    //MatrixShow(f, 3, 1);
     
     X = ReverseSteps(A, rows, cols, f, fCols);
     
@@ -407,40 +397,109 @@ double** ReverseMatrix(double** matrix, int rows, int cols) {
     return  reverse;
 }
 
+double** MakeX(int rows) {
+    
+    double** X = MatrixMake(rows, 1, false);
+    int i = 0;
+    
+    while( i < rows) {
+        X[i][0] = (double) (i + 1);
+        i++;
+    }
+    
+    return X;
+    
+}
+
+double** FirstTask() {
+    
+    int iMax;
+    double inaccuracy;
+    
+    double** A;
+    A = RandomMatrix(10, 10);
+    double** X;
+    X = MakeX(10);
+    
+    double** f = MatrixMultiply(A, X, 10, 10, 1);
+    
+    double** X1 = ImprovedGauss(A, 10, 10, f, 1);
+    
+    MatrixShow(A, 10, 10);
+    MatrixShow(f, 10, 1);
+    
+    MatrixShow(X, 10, 1);
+    MatrixShow(X1, 10, 1);
+    
+    double** m = MatrixResidual(X1, X, 10, 1);
+    
+    iMax = MaxInCol(m, 1, 10, 0);
+    inaccuracy = abs(m[iMax][0])/10.0;
+    std::cout << inaccuracy << std::endl << std::endl;
+    
+    return A;
+}
+
+void SecondTask(double** A) {
+    
+    double** A1 = ReverseMatrix(A, 10, 10);
+    MatrixShow(A1, 10, 10);
+    std::cout <<  std::endl;
+    double** MaybeE = MatrixMultiply(A, A1, 10, 10, 10);
+    MatrixShow(MaybeE, 10, 10);
+    std::cout <<  std::endl;
+    
+}
+
+void ThirdTask() {
+    
+    int n = 2;
+    int imax;
+    double** A;
+    double** f;
+    double** X;
+    double** X1;
+    double** m;
+    double inaccuracy;
+        
+    while(n < 103)
+    {
+        A = RandomMatrix(n , n);
+        //MatrixShow(A, n, n);
+        X = MakeX(n);
+       // MatrixShow(X, n, 1);
+        f = MatrixMultiply(A, X, n, n, 1);
+        //MatrixShow(f, n, 1);
+        
+        X1 = ImprovedGauss(A, n, n, f, 1);
+        m = MatrixResidual(X1, X, n, 1);
+        
+        imax = MaxInCol(m, 1, n, 0);
+        inaccuracy = abs(m[imax][0])/((double) (n));
+        std::cout << n << "  " << inaccuracy << std::endl;
+        
+        n = n + 10;
+    }
+    
+}
 
 int main(int argc, const char * argv[]) {
     
-    double** a;
-    double** b;
-    double** c;
+    double** A;
     
     RandomSet();
-    //a = RandomMatrix(3, 3);
-    //b = RandomMatrix(3, 1);
+    A = FirstTask();
+    SecondTask(A);
+    ThirdTask();
+    /*
+     
+     2  0
+     12  2.03541e-16
+     22  4.88296e-14
+     32  2.35229e-15
     
-    a = MatrixMake(3, 3, false);
-    //b = MatrixMake(3, 3, false);
-    
-    InputMatrix(a, 3, 3);
-    //InputMatrix(b, 3, 3);
-    
-    MatrixShow(a, 3, 3);
-    //MatrixShow(b, 3, 3);
-    
-    //c = StraightGauss(a, 3, 3, b, 1);
-    //c = RowsResidual(a, 0, 3, 3, b, 1);
-    //c = ImprovedGauss(a, 3, 3, b, 3);
-    //MatrixShow(c, 3, 3);
-    
-    c = ReverseMatrix(a, 3, 3);
-    MatrixShow(c, 3, 3);
-    
-    //c = StraightGauss(a, 3, 3, b, 3);
-    //MatrixShow(c, 3, 1);
-    //MatrixShow(b, 3, 1);
-    
-    // insert code here...
-    //std::cout << "Hello, World!\n";
-    return 0;
+     */
+    //A = MakeX(112);
+    //MatrixShow(A, 112, 1);
 }
 
