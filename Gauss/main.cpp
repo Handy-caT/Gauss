@@ -325,8 +325,8 @@ double** ImprovedGauss(double** userA, int rows, int cols, double** userf, int f
     double leading;
         
     double** X;
-    double** A = CopyMatrix(userA, rows, cols);
-    double** f = CopyMatrix(userf, rows, fCols);
+    double** A = userA;//CopyMatrix(userA, rows, cols);
+    double** f = userf;//CopyMatrix(userf, rows, fCols);
         
     while( i < rows - 1 ) {
             
@@ -447,6 +447,39 @@ void SecondTask(double** A) {
     std::cout <<  std::endl;
     double** MaybeE = MatrixMultiply(A, A1, 10, 10, 10);
     MatrixShow(MaybeE, 10, 10);
+    std::cout <<  std::endl;
+    
+}
+
+void ThirdTask() {
+    
+    int n = 2;
+    int imax;
+    double** A;
+    double** f;
+    double** X;
+    double** X1;
+    double** m;
+    double inaccuracy;
+        
+    while(n < 103)
+    {
+        A = RandomMatrix(n , n);
+        //MatrixShow(A, n, n);
+        X = MakeX(n);
+       // MatrixShow(X, n, 1);
+        f = MatrixMultiply(A, X, n, n, 1);
+        //MatrixShow(f, n, 1);
+        
+        X1 = ImprovedGauss(A, n, n, f, 1);
+        m = MatrixResidual(X1, X, n, 1);
+        
+        imax = MaxInCol(m, 1, n, 0);
+        inaccuracy = abs(m[imax][0])/((double) (n));
+        std::cout << n << "  " << inaccuracy << std::endl;
+        
+        n = n + 10;
+    }
     
 }
 
@@ -457,5 +490,16 @@ int main(int argc, const char * argv[]) {
     RandomSet();
     A = FirstTask();
     SecondTask(A);
+    ThirdTask();
+    /*
+     
+     2  0
+     12  2.03541e-16
+     22  4.88296e-14
+     32  2.35229e-15
+    
+     */
+    //A = MakeX(112);
+    //MatrixShow(A, 112, 1);
 }
 
